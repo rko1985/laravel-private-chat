@@ -3,6 +3,9 @@
     <div class="card card-default chat-box">
         <div class="card-header">
             Chats
+            <a href="" @click.prevent="close">
+                <i class="fa fa-times float-right" aria-hidden="true"></i>
+            </a>
         </div>
         <div class="card-body" v-chat-scroll>
             <p class="card-text" v-for="chat in chats" :key="chat.message">
@@ -29,26 +32,14 @@ export default {
     methods:{        
         send(){
             console.log('yeahhhhh')
+        },
+        close(){
+            this.$emit('close');
         }
     },
     created(){
         this.chats.push(
         {message:'Heyy'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
-        {message:'how are you?'},
         {message:'how are you?'},
         {message:'how are you? last'},
         )

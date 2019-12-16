@@ -8,11 +8,15 @@
                     </div>
                     <ul class="list-group">
                         <li class="list-group-item">Friend 1</li>
+                        <li class="list-group-item">Friend 2</li>
                     </ul>
                 </div>
             </div>
             <div class="col-md-9">
-                <message-component></message-component>
+                <message-component 
+                v-if="open"
+                @close="close"
+                ></message-component>
             </div>
         </div>
     </div>
@@ -21,6 +25,19 @@
 <script>
     import MessageComponent from './MessageComponent';
     export default {
+        data(){
+            return {
+                open: true
+            }          
+        },
+        methods:{
+            close(){
+                this.open = false
+            }
+        },
+        created(){
+            
+        },
         components: {MessageComponent},
         mounted() {
             console.log('Component mounted.')
