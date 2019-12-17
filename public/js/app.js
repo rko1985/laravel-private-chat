@@ -14288,7 +14288,7 @@ module.exports = function normalizeComponent (
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(13);
-module.exports = __webpack_require__(51);
+module.exports = __webpack_require__(52);
 
 
 /***/ }),
@@ -14305,7 +14305,7 @@ module.exports = __webpack_require__(51);
 __webpack_require__(14);
 
 window.Vue = __webpack_require__(36);
-Vue.use(__webpack_require__(55));
+Vue.use(__webpack_require__(40));
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -14313,7 +14313,7 @@ Vue.use(__webpack_require__(55));
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('chat-component', __webpack_require__(40));
+Vue.component('chat-component', __webpack_require__(41));
 
 var app = new Vue({
   el: '#app'
@@ -49114,12 +49114,96 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 /* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
+(function (global, factory) {
+	 true ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global['vue-chat-scroll'] = factory());
+}(this, (function () { 'use strict';
+
+/**
+* @name VueJS vChatScroll (vue-chat-scroll)
+* @description Monitors an element and scrolls to the bottom if a new child is added
+* @author Theodore Messinezis <theo@theomessin.com>
+* @file v-chat-scroll  directive definition
+*/
+
+var scrollToBottom = function scrollToBottom(el, smooth) {
+  if (typeof el.scroll === "function") {
+    el.scroll({
+      top: el.scrollHeight,
+      behavior: smooth ? 'smooth' : 'instant'
+    });
+  } else {
+    el.scrollTop = el.scrollHeight;
+  }
+};
+
+var vChatScroll = {
+  bind: function bind(el, binding) {
+    var scrolled = false;
+
+    el.addEventListener('scroll', function (e) {
+      scrolled = el.scrollTop + el.clientHeight + 1 < el.scrollHeight;
+    });
+
+    new MutationObserver(function (e) {
+      var config = binding.value || {};
+      var pause = config.always === false && scrolled;
+      var addedNodes = e[e.length - 1].addedNodes.length;
+      var removedNodes = e[e.length - 1].removedNodes.length;
+
+      if (config.scrollonremoved) {
+        if (pause || addedNodes != 1 && removedNodes != 1) return;
+      } else {
+        if (pause || addedNodes != 1) return;
+      }
+
+      var smooth = config.smooth;
+      var loadingRemoved = !addedNodes && removedNodes === 1;
+      if (loadingRemoved && config.scrollonremoved && 'smoothonremoved' in config) {
+        smooth = config.smoothonremoved;
+      }
+      scrollToBottom(el, smooth);
+    }).observe(el, { childList: true, subtree: true });
+  },
+  inserted: function inserted(el, binding) {
+    var config = binding.value || {};
+    scrollToBottom(el, config.smooth);
+  }
+};
+
+/**
+* @name VueJS vChatScroll (vue-chat-scroll)
+* @description Monitors an element and scrolls to the bottom if a new child is added
+* @author Theodore Messinezis <theo@theomessin.com>
+* @file vue-chat-scroll plugin definition
+*/
+
+var VueChatScroll = {
+  install: function install(Vue, options) {
+    Vue.directive('chat-scroll', vChatScroll);
+  }
+};
+
+if (typeof window !== 'undefined' && window.Vue) {
+  window.Vue.use(VueChatScroll);
+}
+
+return VueChatScroll;
+
+})));
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var disposed = false
 var normalizeComponent = __webpack_require__(11)
 /* script */
-var __vue_script__ = __webpack_require__(41)
+var __vue_script__ = __webpack_require__(42)
 /* template */
-var __vue_template__ = __webpack_require__(50)
+var __vue_template__ = __webpack_require__(51)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -49158,13 +49242,14 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__MessageComponent__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__MessageComponent__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__MessageComponent___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__MessageComponent__);
+//
 //
 //
 //
@@ -49194,37 +49279,44 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            open: true
+            open: true,
+            friends: []
         };
     },
 
     methods: {
         close: function close() {
             this.open = false;
+        },
+        getFriends: function getFriends() {
+            var _this = this;
+
+            axios.post('/getFriends').then(function (res) {
+                return _this.friends = res.data;
+            });
         }
     },
-    created: function created() {},
+    created: function created() {
+        this.getFriends();
+    },
 
-    components: { MessageComponent: __WEBPACK_IMPORTED_MODULE_0__MessageComponent___default.a },
-    mounted: function mounted() {
-        console.log('Component mounted.');
-    }
+    components: { MessageComponent: __WEBPACK_IMPORTED_MODULE_0__MessageComponent___default.a }
 });
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
 function injectStyle (ssrContext) {
   if (disposed) return
-  __webpack_require__(43)
+  __webpack_require__(44)
 }
 var normalizeComponent = __webpack_require__(11)
 /* script */
-var __vue_script__ = __webpack_require__(48)
+var __vue_script__ = __webpack_require__(49)
 /* template */
-var __vue_template__ = __webpack_require__(49)
+var __vue_template__ = __webpack_require__(50)
 /* template functional */
 var __vue_template_functional__ = false
 /* styles */
@@ -49263,17 +49355,17 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(44);
+var content = __webpack_require__(45);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(46)("b35e76b0", content, false, {});
+var update = __webpack_require__(47)("b35e76b0", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -49289,10 +49381,10 @@ if(false) {
 }
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(45)(false);
+exports = module.exports = __webpack_require__(46)(false);
 // imports
 
 
@@ -49303,7 +49395,7 @@ exports.push([module.i, "\n.chat-box{\r\n    height: 400px;\n}\n.card-body{\r\n 
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports) {
 
 /*
@@ -49385,7 +49477,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -49404,7 +49496,7 @@ if (typeof DEBUG !== 'undefined' && DEBUG) {
   ) }
 }
 
-var listToStyles = __webpack_require__(47)
+var listToStyles = __webpack_require__(48)
 
 /*
 type StyleObject = {
@@ -49613,7 +49705,7 @@ function applyToTag (styleElement, obj) {
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports) {
 
 /**
@@ -49646,7 +49738,7 @@ module.exports = function listToStyles (parentId, list) {
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -49725,7 +49817,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -49892,7 +49984,7 @@ if (false) {
 }
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var render = function() {
@@ -49901,7 +49993,35 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "container" }, [
     _c("div", { staticClass: "row justify-content-center" }, [
-      _vm._m(0),
+      _c("div", { staticClass: "col-md-3" }, [
+        _c("div", { staticClass: "card card-default" }, [
+          _c("div", { staticClass: "card-header" }, [
+            _vm._v("\n                    Private Chat App\n                ")
+          ]),
+          _vm._v(" "),
+          _c("ul", { staticClass: "list-group" }, [
+            _c(
+              "a",
+              {
+                attrs: { href: "" },
+                on: {
+                  click: function($event) {
+                    $event.preventDefault()
+                  }
+                }
+              },
+              _vm._l(_vm.friends, function(friend) {
+                return _c(
+                  "li",
+                  { key: friend.id, staticClass: "list-group-item" },
+                  [_vm._v(_vm._s(friend.name))]
+                )
+              }),
+              0
+            )
+          ])
+        ])
+      ]),
       _vm._v(" "),
       _c(
         "div",
@@ -49916,26 +50036,7 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col-md-3" }, [
-      _c("div", { staticClass: "card card-default" }, [
-        _c("div", { staticClass: "card-header" }, [
-          _vm._v("\n                    Private Chat App\n                ")
-        ]),
-        _vm._v(" "),
-        _c("ul", { staticClass: "list-group" }, [
-          _c("li", { staticClass: "list-group-item" }, [_vm._v("Friend 1")]),
-          _vm._v(" "),
-          _c("li", { staticClass: "list-group-item" }, [_vm._v("Friend 2")])
-        ])
-      ])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
@@ -49946,97 +50047,10 @@ if (false) {
 }
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */
-/***/ (function(module, exports, __webpack_require__) {
-
-(function (global, factory) {
-	 true ? module.exports = factory() :
-	typeof define === 'function' && define.amd ? define(factory) :
-	(global['vue-chat-scroll'] = factory());
-}(this, (function () { 'use strict';
-
-/**
-* @name VueJS vChatScroll (vue-chat-scroll)
-* @description Monitors an element and scrolls to the bottom if a new child is added
-* @author Theodore Messinezis <theo@theomessin.com>
-* @file v-chat-scroll  directive definition
-*/
-
-var scrollToBottom = function scrollToBottom(el, smooth) {
-  if (typeof el.scroll === "function") {
-    el.scroll({
-      top: el.scrollHeight,
-      behavior: smooth ? 'smooth' : 'instant'
-    });
-  } else {
-    el.scrollTop = el.scrollHeight;
-  }
-};
-
-var vChatScroll = {
-  bind: function bind(el, binding) {
-    var scrolled = false;
-
-    el.addEventListener('scroll', function (e) {
-      scrolled = el.scrollTop + el.clientHeight + 1 < el.scrollHeight;
-    });
-
-    new MutationObserver(function (e) {
-      var config = binding.value || {};
-      var pause = config.always === false && scrolled;
-      var addedNodes = e[e.length - 1].addedNodes.length;
-      var removedNodes = e[e.length - 1].removedNodes.length;
-
-      if (config.scrollonremoved) {
-        if (pause || addedNodes != 1 && removedNodes != 1) return;
-      } else {
-        if (pause || addedNodes != 1) return;
-      }
-
-      var smooth = config.smooth;
-      var loadingRemoved = !addedNodes && removedNodes === 1;
-      if (loadingRemoved && config.scrollonremoved && 'smoothonremoved' in config) {
-        smooth = config.smoothonremoved;
-      }
-      scrollToBottom(el, smooth);
-    }).observe(el, { childList: true, subtree: true });
-  },
-  inserted: function inserted(el, binding) {
-    var config = binding.value || {};
-    scrollToBottom(el, config.smooth);
-  }
-};
-
-/**
-* @name VueJS vChatScroll (vue-chat-scroll)
-* @description Monitors an element and scrolls to the bottom if a new child is added
-* @author Theodore Messinezis <theo@theomessin.com>
-* @file vue-chat-scroll plugin definition
-*/
-
-var VueChatScroll = {
-  install: function install(Vue, options) {
-    Vue.directive('chat-scroll', vChatScroll);
-  }
-};
-
-if (typeof window !== 'undefined' && window.Vue) {
-  window.Vue.use(VueChatScroll);
-}
-
-return VueChatScroll;
-
-})));
-
 
 /***/ })
 /******/ ]);

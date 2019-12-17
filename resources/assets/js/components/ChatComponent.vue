@@ -7,8 +7,9 @@
                         Private Chat App
                     </div>
                     <ul class="list-group">
-                        <li class="list-group-item">Friend 1</li>
-                        <li class="list-group-item">Friend 2</li>
+                        <a href="" @click.prevent>
+                            <li v-for="friend in friends" :key="friend.id" class="list-group-item">{{friend.name}}</li>
+                        </a>
                     </ul>
                 </div>
             </div>
@@ -27,20 +28,22 @@
     export default {
         data(){
             return {
-                open: true
+                open: true,
+                friends: []
             }          
         },
         methods:{
             close(){
                 this.open = false
+            },
+            getFriends(){
+                axios.post('/getFriends')
+                    .then(res => this.friends = res.data)
             }
         },
         created(){
-            
+            this.getFriends()
         },
-        components: {MessageComponent},
-        mounted() {
-            console.log('Component mounted.')
-        }
+        components: {MessageComponent}
     }
 </script>
