@@ -3,11 +3,11 @@
     <div class="card card-default chat-box">
         <div class="card-header">
             <b :class="{'text-danger':session_block}">
-                User name
+                {{friend.name}}
                 <span v-if="session_block">(Blocked)</span>
             </b>
             <!-- Close Button -->
-            <a href="" @click.prevent="close">
+            <a href="" @click.prevent="close(friend)">
                 <i class="fa fa-times float-right" aria-hidden="true"></i>
             </a>
             <!-- Close Button End -->
@@ -42,6 +42,7 @@
 
 <script>
 export default {
+    props:['friend'],
     data(){
       return {
           chats: [],
@@ -52,8 +53,8 @@ export default {
         send(){
             console.log('yeahhhhh')
         },
-        close(){
-            this.$emit('close');
+        close(friend){
+            friend.session.open = false
         },
         clear(){
             this.chats = []

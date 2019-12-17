@@ -30,6 +30,6 @@ class HomeController extends Controller
     }
 
     public function getFriends(){
-        return User::all();
+        return UserResource::collection(User::all());
     }
 }
