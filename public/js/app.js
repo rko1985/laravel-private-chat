@@ -49305,11 +49305,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 friend.session.open = true;
             } else {
                 this.createSession(friend);
+                friend.session.open = true;
             }
         },
         createSession: function createSession(friend) {
             axios.post('/session/create', { friend_id: friend.id }).then(function (res) {
-                return console.log(res.data);
+                friend.session = res.data.data, friend.session.open = true;
             });
         }
     },
