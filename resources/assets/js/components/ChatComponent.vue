@@ -6,10 +6,11 @@
                     <div class="card-header">
                         Private Chat App
                     </div>
-                    <ul class="list-group">
-                        <a href="" @click.prevent="openChat(friend)" v-for="friend in friends" :key="friend.id" >
-                            <li class="list-group-item">{{friend.name}}</li>
-                        </a>
+                    <ul class="list-group">                        
+                        <li @click.prevent="openChat(friend)" v-for="friend in friends" :key="friend.id" class="list-group-item">
+                            <a href="">{{friend.name}}</a>
+                            <i class="fa fa-circle float-right text-success" aria-hidden="true" v-if="friend.online"></i>
+                        </li>                        
                     </ul>
                 </div>
             </div>
@@ -61,6 +62,22 @@
         },
         created(){
             this.getFriends()
+            Echo.join('Chat')
+                .here((users) => {
+                    this.friends.forEach(friend => {
+                        users.forEach(user => {
+                            if(user.id == friend.id){
+                                friend.online = true
+                            }
+                        })
+                    })
+                })
+                .joining((user) => {
+                    this.friends.forEach(friend => user.id == friend.id ? friend.online = true:'')
+                })
+                .leaving((user) => {
+                    this.friends.forEach(friend => user.id == friend.id ? friend.online = false:'')
+                });
         },
         components: {MessageComponent}
     }
