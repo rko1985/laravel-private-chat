@@ -32,7 +32,7 @@
         </div>
         <form class="card-footer" @submit.prevent="send">
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Write your message here" :disabled="session_block">
+                <input type="text" class="form-control" placeholder="Write your message here" :disabled="session_block" v-model="message">
             </div>
             
         </form>
@@ -46,12 +46,18 @@ export default {
     data(){
       return {
           chats: [],
+          message: null,
           session_block: false
       }      
     },
     methods:{        
         send(){
-            console.log('yeahhhhh')
+            if(this.message){
+                this.chats.push(this.message);
+                axios.post(`/send/${this.friend.session.id}`, {
+                    content: this.message
+                });
+            }
         },
         close(friend){
             friend.session.open = false

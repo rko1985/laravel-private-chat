@@ -45,9 +45,8 @@
             },
             openChat(friend){
                 if(friend.session){
-                    this.friends.forEach(friend => {
-                        friend => (friend.session ? (friend.session.open = false) : "")
-                    });
+                    this.friends.forEach(friend => (friend.session ? (friend.session.open = false) : "")
+                    );
                     friend.session.open = true   
                 } else {
                     this.createSession(friend)

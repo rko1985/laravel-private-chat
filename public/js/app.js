@@ -59142,9 +59142,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         openChat: function openChat(friend) {
             if (friend.session) {
                 this.friends.forEach(function (friend) {
-                    (function (friend) {
-                        return friend.session ? friend.session.open = false : "";
-                    });
+                    return friend.session ? friend.session.open = false : "";
                 });
                 friend.session.open = true;
             } else {
@@ -59680,13 +59678,19 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function data() {
         return {
             chats: [],
+            message: null,
             session_block: false
         };
     },
 
     methods: {
         send: function send() {
-            console.log('yeahhhhh');
+            if (this.message) {
+                this.chats.push(this.message);
+                axios.post('/send/' + this.friend.session.id, {
+                    content: this.message
+                });
+            }
         },
         close: function close(friend) {
             friend.session.open = false;
@@ -59827,11 +59831,28 @@ var render = function() {
       [
         _c("div", { staticClass: "form-group" }, [
           _c("input", {
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.message,
+                expression: "message"
+              }
+            ],
             staticClass: "form-control",
             attrs: {
               type: "text",
               placeholder: "Write your message here",
               disabled: _vm.session_block
+            },
+            domProps: { value: _vm.message },
+            on: {
+              input: function($event) {
+                if ($event.target.composing) {
+                  return
+                }
+                _vm.message = $event.target.value
+              }
             }
           })
         ])
