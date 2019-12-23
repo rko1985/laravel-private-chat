@@ -53,12 +53,15 @@ export default {
     methods:{        
         send(){
             if(this.message){
-                this.chats.push(this.message);
+                this.pushToChats(this.message);
                 axios.post(`/send/${this.friend.session.id}`, {
                     content: this.message,
                     to_user: this.friend.id
                 });
             }
+        },
+        pushToChats(message){
+            this.chats.push({message: message});
         },
         close(friend){
             friend.session.open = false
