@@ -59694,7 +59694,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         },
         pushToChats: function pushToChats(message) {
-            this.chats.push({ message: message });
+            this.chats.push({ message: message, type: 0, sent_at: 'Just now' });
         },
         close: function close(friend) {
             friend.session.open = false;
@@ -59707,10 +59707,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         unblock: function unblock() {
             this.session_block = false;
+        },
+        getAllMessages: function getAllMessages() {
+            var _this = this;
+
+            axios.post('/session/' + this.friend.session.id + '/chats').then(function (res) {
+                return _this.chats = res.data.data;
+            });
         }
     },
     created: function created() {
-        this.chats.push({ message: 'Heyy' }, { message: 'how are you?' }, { message: 'how are you? last' });
+        this.getAllMessages();
     }
 });
 
@@ -59814,9 +59821,15 @@ var render = function() {
         staticClass: "card-body"
       },
       _vm._l(_vm.chats, function(chat) {
-        return _c("p", { key: chat.message, staticClass: "card-text" }, [
-          _vm._v("\n            " + _vm._s(chat.message) + "\n        ")
-        ])
+        return _c(
+          "p",
+          {
+            key: chat.message,
+            staticClass: "card-text",
+            class: { "text-right": chat.type == 0 }
+          },
+          [_vm._v("\n            " + _vm._s(chat.message) + "\n        ")]
+        )
       }),
       0
     ),
