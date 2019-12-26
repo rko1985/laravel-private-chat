@@ -59119,6 +59119,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -59145,9 +59148,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                     return friend.session ? friend.session.open = false : "";
                 });
                 friend.session.open = true;
+                friend.session.unreadCount = 0;
             } else {
                 this.createSession(friend);
-                friend.session.open = true;
             }
         },
         createSession: function createSession(friend) {
@@ -59951,7 +59954,16 @@ var render = function() {
                 },
                 [
                   _c("a", { attrs: { href: "" } }, [
-                    _vm._v(_vm._s(friend.name))
+                    _vm._v(
+                      "\n                            " +
+                        _vm._s(friend.name) +
+                        "\n                            "
+                    ),
+                    friend.session && friend.session.unreadCount > 0
+                      ? _c("span", { staticClass: "text-danger" }, [
+                          _vm._v(_vm._s(friend.session.unreadCount))
+                        ])
+                      : _vm._e()
                   ]),
                   _vm._v(" "),
                   friend.online
