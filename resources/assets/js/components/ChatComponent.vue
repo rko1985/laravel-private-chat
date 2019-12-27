@@ -46,11 +46,9 @@
                 axios.post('/getFriends')
                     .then(res => {
                         this.friends = res.data.data
-                        this.friends.forEach(friend => {
-                            if(friend.session.id){
-                                Echo.private(`Chat.${friend.session.id}`).listen('PrivateChatEvent', (e) => friend.session.unreadCount++);
-                            }
-                        });
+                        this.friends.forEach(
+                            friend => (friend.session ? this.listForEverySession(friend) : "")                            
+                        );
                     });
             },
             openChat(friend){
@@ -67,6 +65,12 @@
                 axios.post('/session/create', {friend_id:friend.id})
                     .then(res => {(friend.session = res.data.data),
                     (friend.session.open = true)})
+            },
+            listForEverySession(friend){
+                Echo.private(`Chat.${friend.session.id}`).listen(
+                    'PrivateChatEvent', 
+                    e => (friend.session.open ? "" : friend.session.unreadCount++)
+                );
             }
         },
         created(){

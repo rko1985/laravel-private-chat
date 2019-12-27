@@ -59141,11 +59141,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.post('/getFriends').then(function (res) {
                 _this.friends = res.data.data;
                 _this.friends.forEach(function (friend) {
-                    if (friend.session.id) {
-                        Echo.private('Chat.' + friend.session.id).listen('PrivateChatEvent', function (e) {
-                            return friend.session.unreadCount++;
-                        });
-                    }
+                    return friend.session ? _this.listForEverySession(friend) : "";
                 });
             });
         },
@@ -59163,6 +59159,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         createSession: function createSession(friend) {
             axios.post('/session/create', { friend_id: friend.id }).then(function (res) {
                 friend.session = res.data.data, friend.session.open = true;
+            });
+        },
+        listForEverySession: function listForEverySession(friend) {
+            Echo.private('Chat.' + friend.session.id).listen('PrivateChatEvent', function (e) {
+                return friend.session.open ? "" : friend.session.unreadCount++;
             });
         }
     },
