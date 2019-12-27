@@ -59177,6 +59177,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 return friend.id == e.session_by;
             });
             friend.session = e.session;
+            _this2.listForEverySession(friend);
         });
 
         Echo.join('Chat').here(function (users) {
@@ -59725,14 +59726,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.post('/session/' + this.friend.session.id + '/chats').then(function (res) {
                 return _this.chats = res.data.data;
             });
+        },
+        read: function read() {
+            axios.post('/session/' + this.friend.session.id + '/read');
         }
     },
     created: function created() {
         var _this2 = this;
 
+        this.read();
+
         this.getAllMessages();
 
         Echo.private('Chat.' + this.friend.session.id).listen('PrivateChatEvent', function (e) {
+            _this2.read();
             _this2.chats.push({ message: e.content, type: 1, sent_at: 'Just now' });
         });
     }

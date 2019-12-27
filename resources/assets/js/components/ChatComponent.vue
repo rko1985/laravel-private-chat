@@ -79,6 +79,7 @@
             Echo.channel('Chat').listen('SessionEvent', e => {
                 let friend = this.friends.find(friend => friend.id == e.session_by);
                 friend.session = e.session;
+                this.listForEverySession(friend);
             });
 
             Echo.join('Chat')
