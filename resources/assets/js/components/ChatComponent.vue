@@ -44,7 +44,14 @@
             },
             getFriends(){
                 axios.post('/getFriends')
-                    .then(res => this.friends = res.data.data)
+                    .then(res => {
+                        this.friends = res.data.data
+                        this.friends.forEach(friend => {
+                            if(friend.session.id){
+                                Echo.private(`Chat.${friend.session.id}`).listen('PrivateChatEvent', (e) => friend.session.unreadCount++);
+                            }
+                        });
+                    });
             },
             openChat(friend){
                 if(friend.session){

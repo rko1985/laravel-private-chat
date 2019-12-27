@@ -59139,7 +59139,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var _this = this;
 
             axios.post('/getFriends').then(function (res) {
-                return _this.friends = res.data.data;
+                _this.friends = res.data.data;
+                _this.friends.forEach(function (friend) {
+                    if (friend.session.id) {
+                        Echo.private('Chat.' + friend.session.id).listen('PrivateChatEvent', function (e) {
+                            return friend.session.unreadCount++;
+                        });
+                    }
+                });
             });
         },
         openChat: function openChat(friend) {
