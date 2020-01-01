@@ -59692,11 +59692,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     data: function data() {
         return {
             chats: [],
-            message: null,
-            session_block: false
+            message: null
         };
     },
 
+    computed: {
+        session: function session() {
+            return this.friend.session;
+        },
+        can: function can() {
+            return this.session.blocked_by == authId;
+        }
+    },
     methods: {
         send: function send() {
             var _this = this;
@@ -59726,10 +59733,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         },
         block: function block() {
-            this.session_block = true;
+            this.session.block = true;
+            axios.post('session/' + this.friend.session.id + '/block').then(function (res) {
+                return console.log(res);
+            });
         },
         unblock: function unblock() {
-            this.session_block = false;
+            this.session.block = false;
+            axios.post('session/' + this.friend.session.id + '/unblock').then(function (res) {
+                return console.log(res);
+            });
         },
         getAllMessages: function getAllMessages() {
             var _this3 = this;
@@ -59772,9 +59785,9 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "card card-default chat-box" }, [
     _c("div", { staticClass: "card-header" }, [
-      _c("b", { class: { "text-danger": _vm.session_block } }, [
+      _c("b", { class: { "text-danger": _vm.session.block } }, [
         _vm._v("\n            " + _vm._s(_vm.friend.name) + "\n            "),
-        _vm.session_block ? _c("span", [_vm._v("(Blocked)")]) : _vm._e()
+        _vm.session.block ? _c("span", [_vm._v("(Blocked)")]) : _vm._e()
       ]),
       _vm._v(" "),
       _c(
@@ -59806,7 +59819,7 @@ var render = function() {
             attrs: { "aria-labelledby": "dropdownMenuButton" }
           },
           [
-            _vm.session_block
+            _vm.session.block && _vm.can
               ? _c(
                   "a",
                   {
@@ -59911,7 +59924,7 @@ var render = function() {
             attrs: {
               type: "text",
               placeholder: "Write your message here",
-              disabled: _vm.session_block
+              disabled: _vm.session.block
             },
             domProps: { value: _vm.message },
             on: {

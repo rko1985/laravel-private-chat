@@ -2,9 +2,9 @@
 
     <div class="card card-default chat-box">
         <div class="card-header">
-            <b :class="{'text-danger':session_block}">
+            <b :class="{'text-danger':session.block}">
                 {{friend.name}}
-                <span v-if="session_block">(Blocked)</span>
+                <span v-if="session.block">(Blocked)</span>
             </b>
             <!-- Close Button -->
             <a href="" @click.prevent="close(friend)">
@@ -18,7 +18,7 @@
                     <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
                 </a>                
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#" v-if="session_block" @click.prevent="unblock">UnBlock</a>
+                    <a class="dropdown-item" href="#" v-if="session.block && can" @click.prevent="unblock">UnBlock</a>
                     <a class="dropdown-item" href="#" v-else @click.prevent="block">Block</a>
                     <a class="dropdown-item" href="#" @click.prevent="clear">Clear Chat</a>
                 </div>
@@ -34,7 +34,7 @@
         </div>
         <form class="card-footer" @submit.prevent="send">
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Write your message here" :disabled="session_block" v-model="message">
+                <input type="text" class="form-control" placeholder="Write your message here" :disabled="session.block" v-model="message">
             </div>
             
         </form>
@@ -48,9 +48,16 @@ export default {
     data(){
       return {
           chats: [],
-          message: null,
-          session_block: false
+          message: null
       }      
+    },
+    computed: {
+        session(){
+            return this.friend.session;
+        },
+        can(){
+            return this.session.blocked_by == authId;
+        }
     },
     methods:{        
         send(){
@@ -75,10 +82,14 @@ export default {
                 .then(res => (this.chats = []))
         },
         block(){
-            this.session_block = true
+            this.session.block = true;
+            axios.post(`session/${this.friend.session.id}/block`)
+                .then(res => console.log(res))
         },
         unblock(){
-            this.session_block = false
+            this.session.block = false
+            axios.post(`session/${this.friend.session.id}/unblock`)
+                .then(res => console.log(res))
         },
         getAllMessages(){
             axios.post(`/session/${this.friend.session.id}/chats`)
