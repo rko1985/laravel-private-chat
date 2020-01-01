@@ -19,7 +19,7 @@
                 </a>                
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="#" v-if="session.block && can" @click.prevent="unblock">UnBlock</a>
-                    <a class="dropdown-item" href="#" v-else @click.prevent="block">Block</a>
+                    <a class="dropdown-item" href="#" v-if="!session.block" @click.prevent="block">Block</a>
                     <a class="dropdown-item" href="#" @click.prevent="clear">Clear Chat</a>
                 </div>
             </div>                

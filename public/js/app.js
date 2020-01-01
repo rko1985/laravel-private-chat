@@ -59834,7 +59834,10 @@ var render = function() {
                   },
                   [_vm._v("UnBlock")]
                 )
-              : _c(
+              : _vm._e(),
+            _vm._v(" "),
+            !_vm.session.block
+              ? _c(
                   "a",
                   {
                     staticClass: "dropdown-item",
@@ -59847,7 +59850,8 @@ var render = function() {
                     }
                   },
                   [_vm._v("Block")]
-                ),
+                )
+              : _vm._e(),
             _vm._v(" "),
             _c(
               "a",
