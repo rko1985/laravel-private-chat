@@ -59122,6 +59122,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -59132,16 +59135,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     },
 
     methods: {
-        close: function close() {
-            this.open = false;
+        close: function close(friend) {
+            friend.session.open = false;
         },
         getFriends: function getFriends() {
             var _this = this;
 
-            axios.post('/getFriends').then(function (res) {
+            axios.post("/getFriends").then(function (res) {
                 _this.friends = res.data.data;
                 _this.friends.forEach(function (friend) {
-                    return friend.session ? _this.listForEverySession(friend) : "";
+                    return friend.session ? _this.listenForEverySession(friend) : "";
                 });
             });
         },
@@ -59157,12 +59160,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         },
         createSession: function createSession(friend) {
-            axios.post('/session/create', { friend_id: friend.id }).then(function (res) {
+            axios.post("/session/create", { friend_id: friend.id }).then(function (res) {
                 friend.session = res.data.data, friend.session.open = true;
             });
         },
-        listForEverySession: function listForEverySession(friend) {
-            Echo.private('Chat.' + friend.session.id).listen('PrivateChatEvent', function (e) {
+        listenForEverySession: function listenForEverySession(friend) {
+            Echo.private("Chat." + friend.session.id).listen("PrivateChatEvent", function (e) {
                 return friend.session.open ? "" : friend.session.unreadCount++;
             });
         }
@@ -59172,15 +59175,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         this.getFriends();
 
-        Echo.channel('Chat').listen('SessionEvent', function (e) {
+        Echo.channel("Chat").listen("SessionEvent", function (e) {
             var friend = _this2.friends.find(function (friend) {
                 return friend.id == e.session_by;
             });
             friend.session = e.session;
-            _this2.listForEverySession(friend);
+            _this2.listenForEverySession(friend);
         });
 
-        Echo.join('Chat').here(function (users) {
+        Echo.join("Chat").here(function (users) {
             _this2.friends.forEach(function (friend) {
                 users.forEach(function (user) {
                     if (user.id == friend.id) {
@@ -59190,11 +59193,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         }).joining(function (user) {
             _this2.friends.forEach(function (friend) {
-                return user.id == friend.id ? friend.online = true : '';
+                return user.id == friend.id ? friend.online = true : "";
             });
         }).leaving(function (user) {
             _this2.friends.forEach(function (friend) {
-                return user.id == friend.id ? friend.online = false : '';
+                return user.id == friend.id ? friend.online = false : "";
             });
         });
     },
@@ -59686,13 +59689,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['friend'],
+    props: ["friend"],
     data: function data() {
         return {
             chats: [],
-            message: null
+            message: null,
+            isTyping: false
         };
     },
 
@@ -59701,7 +59706,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             return this.friend.session;
         },
         can: function can() {
-            return this.session.blocked_by == authId;
+            return this.session.blocked_by == auth.id;
+        }
+    },
+    watch: {
+        message: function message(value) {
+            if (value) {
+                Echo.private("Chat." + this.friend.session.id).whisper('typing', {
+                    name: auth.name
+                });
+            }
         }
     },
     methods: {
@@ -59710,7 +59724,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
             if (this.message) {
                 this.pushToChats(this.message);
-                axios.post('/send/' + this.friend.session.id, {
+                axios.post("/send/" + this.friend.session.id, {
                     content: this.message,
                     to_user: this.friend.id
                 }).then(function (res) {
@@ -59720,15 +59734,20 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             }
         },
         pushToChats: function pushToChats(message) {
-            this.chats.push({ message: message, type: 0, read_at: null, sent_at: 'Just now' });
+            this.chats.push({
+                message: message,
+                type: 0,
+                read_at: null,
+                sent_at: "Just Now"
+            });
         },
-        close: function close(friend) {
-            friend.session.open = false;
+        close: function close() {
+            this.$emit("close");
         },
         clear: function clear() {
             var _this2 = this;
 
-            axios.post('session/' + this.friend.session.id + '/clear').then(function (res) {
+            axios.post("/session/" + this.friend.session.id + "/clear").then(function (res) {
                 return _this2.chats = [];
             });
         },
@@ -59736,27 +59755,27 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var _this3 = this;
 
             this.session.block = true;
-            axios.post('session/' + this.friend.session.id + '/block').then(function (res) {
-                return _this3.session.blocked_by = authId;
+            axios.post("/session/" + this.friend.session.id + "/block").then(function (res) {
+                return _this3.session.blocked_by = auth.id;
             });
         },
         unblock: function unblock() {
             var _this4 = this;
 
             this.session.block = false;
-            axios.post('session/' + this.friend.session.id + '/unblock').then(function (res) {
+            axios.post("/session/" + this.friend.session.id + "/unblock").then(function (res) {
                 return _this4.session.blocked_by = null;
             });
         },
         getAllMessages: function getAllMessages() {
             var _this5 = this;
 
-            axios.post('/session/' + this.friend.session.id + '/chats').then(function (res) {
+            axios.post("/session/" + this.friend.session.id + "/chats").then(function (res) {
                 return _this5.chats = res.data.data;
             });
         },
         read: function read() {
-            axios.post('/session/' + this.friend.session.id + '/read');
+            axios.post("/session/" + this.friend.session.id + "/read");
         }
     },
     created: function created() {
@@ -59766,19 +59785,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
         this.getAllMessages();
 
-        Echo.private('Chat.' + this.friend.session.id).listen('PrivateChatEvent', function (e) {
+        Echo.private("Chat." + this.friend.session.id).listen("PrivateChatEvent", function (e) {
             _this6.friend.session.open ? _this6.read() : "";
-            _this6.chats.push({ message: e.content, type: 1, sent_at: 'Just now' });
+            _this6.chats.push({ message: e.content, type: 1, sent_at: "Just Now" });
         });
 
-        Echo.private('Chat.' + this.friend.session.id).listen('MsgReadEvent', function (e) {
+        Echo.private("Chat." + this.friend.session.id).listen("MsgReadEvent", function (e) {
             return _this6.chats.forEach(function (chat) {
                 return chat.id == e.chat.id ? chat.read_at = e.chat.read_at : "";
             });
         });
 
-        Echo.private('Chat.' + this.friend.session.id).listen('BlockEvent', function (e) {
+        Echo.private("Chat." + this.friend.session.id).listen("BlockEvent", function (e) {
             return _this6.session.block = e.blocked;
+        });
+
+        Echo.private("Chat." + this.friend.session.id).listenForWhisper('typing', function (e) {
+            _this6.isTyping = true, setTimeout(function () {
+                _this6.isTyping = false;
+            }, 2000);
         });
     }
 });
@@ -59794,7 +59819,9 @@ var render = function() {
   return _c("div", { staticClass: "card card-default chat-box" }, [
     _c("div", { staticClass: "card-header" }, [
       _c("b", { class: { "text-danger": _vm.session.block } }, [
-        _vm._v("\n            " + _vm._s(_vm.friend.name) + "\n            "),
+        _vm._v("\n            " + _vm._s(_vm.friend.name) + " "),
+        _vm.isTyping ? _c("span", [_vm._v("is Typing..")]) : _vm._e(),
+        _vm._v(" "),
         _vm.session.block ? _c("span", [_vm._v("(Blocked)")]) : _vm._e()
       ]),
       _vm._v(" "),
@@ -59805,7 +59832,7 @@ var render = function() {
           on: {
             click: function($event) {
               $event.preventDefault()
-              return _vm.close(_vm.friend)
+              return _vm.close($event)
             }
           }
         },
@@ -59873,7 +59900,7 @@ var render = function() {
                   }
                 }
               },
-              [_vm._v("Clear Chat")]
+              [_vm._v(" Clear Chat")]
             )
           ]
         )
@@ -59963,7 +59990,6 @@ var staticRenderFns = [
       {
         attrs: {
           href: "",
-          id: "dropdownMenuButton",
           "data-toggle": "dropdown",
           "aria-haspopup": "true",
           "aria-expanded": "false"
@@ -60059,7 +60085,11 @@ var render = function() {
                   friend.session.open
                     ? _c("message-component", {
                         attrs: { friend: friend },
-                        on: { close: _vm.close }
+                        on: {
+                          close: function($event) {
+                            return _vm.close(friend)
+                          }
+                        }
                       })
                     : _vm._e()
                 ],
