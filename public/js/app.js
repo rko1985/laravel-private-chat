@@ -59733,22 +59733,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             });
         },
         block: function block() {
+            var _this3 = this;
+
             this.session.block = true;
             axios.post('session/' + this.friend.session.id + '/block').then(function (res) {
-                return console.log(res);
+                return _this3.session.blocked_by = authId;
             });
         },
         unblock: function unblock() {
+            var _this4 = this;
+
             this.session.block = false;
             axios.post('session/' + this.friend.session.id + '/unblock').then(function (res) {
-                return console.log(res);
+                return _this4.session.blocked_by = null;
             });
         },
         getAllMessages: function getAllMessages() {
-            var _this3 = this;
+            var _this5 = this;
 
             axios.post('/session/' + this.friend.session.id + '/chats').then(function (res) {
-                return _this3.chats = res.data.data;
+                return _this5.chats = res.data.data;
             });
         },
         read: function read() {
@@ -59756,21 +59760,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
     },
     created: function created() {
-        var _this4 = this;
+        var _this6 = this;
 
         this.read();
 
         this.getAllMessages();
 
         Echo.private('Chat.' + this.friend.session.id).listen('PrivateChatEvent', function (e) {
-            _this4.friend.session.open ? _this4.read() : "";
-            _this4.chats.push({ message: e.content, type: 1, sent_at: 'Just now' });
+            _this6.friend.session.open ? _this6.read() : "";
+            _this6.chats.push({ message: e.content, type: 1, sent_at: 'Just now' });
         });
 
         Echo.private('Chat.' + this.friend.session.id).listen('MsgReadEvent', function (e) {
-            return _this4.chats.forEach(function (chat) {
+            return _this6.chats.forEach(function (chat) {
                 return chat.id == e.chat.id ? chat.read_at = e.chat.read_at : "";
             });
+        });
+
+        Echo.private('Chat.' + this.friend.session.id).listen('BlockEvent', function (e) {
+            return _this6.session.block = e.blocked;
         });
     }
 });

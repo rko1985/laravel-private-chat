@@ -84,12 +84,12 @@ export default {
         block(){
             this.session.block = true;
             axios.post(`session/${this.friend.session.id}/block`)
-                .then(res => console.log(res))
+                .then(res => this.session.blocked_by = authId);
         },
         unblock(){
             this.session.block = false
             axios.post(`session/${this.friend.session.id}/unblock`)
-                .then(res => console.log(res))
+                .then(res => this.session.blocked_by = null);
         },
         getAllMessages(){
             axios.post(`/session/${this.friend.session.id}/chats`)
@@ -112,6 +112,11 @@ export default {
         Echo.private(`Chat.${this.friend.session.id}`).listen(
             'MsgReadEvent',
             (e) => this.chats.forEach(chat => chat.id == e.chat.id ? chat.read_at = e.chat.read_at : "")
+        );
+
+        Echo.private(`Chat.${this.friend.session.id}`).listen(
+            'BlockEvent',
+            (e) => (this.session.block = e.blocked)
         );
     }
 }
